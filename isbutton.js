@@ -31,7 +31,7 @@ function getBaseURL () {
 				      					body: v
 				      				});
 				      			};
-					    	}, getOnPostRender = function(u, ch) { return function () { this.getEl().style.maxWidth = '300px'; this.getEl().style.height = "auto"; this.getEl().firstChild.innerHTML = ch ? "<span style=\"font-size: 100px; display: inline-block;\">" + u + "</span>" : "<img src=\"" + u + "\" style=\"max-width=280px; width=auto; height=auto;\" onload=\"this.parentNode.style.maxWidth = '300px'; this.style.maxWidth = '280px'; this.style.width = 'auto';\">"; }; };
+					    	}, getOnPostRender = function(u, ch) { return function () { var el = document.createElement(ch ? "span" : "img"); if (ch) { el.style.fontSize = "100px"; el.style.display = "inline-block"; el.innerText = u; } else { el.style.maxWidth = "280px"; el.style.width = "auto"; el.style.height = "auto"; var f = function() { if (!el.complete) { window.setTimeout(f.bind(el), 1000); } else { this.parentNode.style.maxWidth = '300px'; this.style.maxWidth = '280px'; this.style.width = 'auto'; } }; el.onload = f; el.src = u; } this.getEl().style.maxWidth = '300px'; this.getEl().style.height = "auto"; this.getEl().firstChild.appendChild(el); }; };
 				    	for (var pancount = 0; pancount < data[count].menu[subcount].values.length; pancount++) {
 				    		if (data[count].menu[subcount].values[pancount] !== null) {
 				    			if (data[count].menu[subcount].values[pancount].font !== "") {
@@ -52,8 +52,7 @@ function getBaseURL () {
             ed.addButton('is_button', {
                 type: 'menubutton',
                 title: 'Islam Source',
-                image: url+'/IslamSourceWP.php?Size=32&Char=22&Font=AGAIslamicPhrases',
-                style: 'background-image: url(' + url+'/IslamSourceWP.php?Size=32&Char=22&Font=AGAIslamicPhrases); background-size: contain; background-repeat: no-repeat;',
+                image: url + '/IslamSourceWP.php?Size=32&Char=22&Font=AGAIslamicPhrases',
                 icons: false,
                 //text: 'Islam Source',
                 menu: data
