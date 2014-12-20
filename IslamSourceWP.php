@@ -61,7 +61,7 @@ class ArabicData
     public static function Data()
     {
         if (ArabicData::$_ArabicXMLData == null) {
-            ArabicData::$_ArabicXMLData = simplexml_load_file(dirname(__FILE__) . "/HostPage/metadata/arabicdata.xml");
+            ArabicData::$_ArabicXMLData = simplexml_load_file(dirname(__FILE__) . "/HostPage/metadata/ArabicData.xml");
         }
         return ArabicData::$_ArabicXMLData;
     }
