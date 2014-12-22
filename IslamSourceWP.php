@@ -866,7 +866,7 @@ class CachedData
                 if ($matches[1] == "TehMarbutaStopRule") { return CachedData::TehMarbutaStopRule(); }
                 if ($matches[1] == "TehMarbutaContinueRule") { return CachedData::TehMarbutaContinueRule(); }
 
-                if ($matches[1] == "ArabicUniqueLetters") { return ArabicData::MakeRegMultiEx(array_map(function($str) { return str_replace(ArabicData::$ArabicMaddahAbove, "", ArabicData::TransliterateFromBuckwalter($str)); }, CachedData::ArabicUniqueLetters())); }
+                if ($matches[1] == "ArabicUniqueLetters") { return ArabicData::MakeRegMultiEx(array_map(function($str) { return ArabicData::TransliterateFromBuckwalter($str); }, CachedData::ArabicUniqueLetters())); }
                 if ($matches[1] == "ArabicNumbers") { return ArabicData::MakeRegMultiEx(array_map(function($str) { return ArabicData::TransliterateFromBuckwalter($str); }, CachedData::ArabicNumbers())); }
                 if ($matches[1] == "ArabicWaslKasraExceptions") { return ArabicData::MakeRegMultiEx(array_map(function($str) { return ArabicData::TransliterateFromBuckwalter($str); }, CachedData::ArabicWaslKasraExceptions())); }
                 //if ($matches[1] == "SimpleSuperscriptAlefBefore") { return ArabicData::MakeRegMultiEx(array_map(function($str) { return ArabicData::TransliterateFromBuckwalter(str_replace([".", """", "@", "[", "]", "-", "^"], "", $str)); }, CachedData::SimpleSuperscriptAlefBefore())); }
@@ -1088,7 +1088,7 @@ class Arabic
 		} elseif ($schemeType == TranslitScheme::Literal) {
 			return Arabic::TransliterateToRoman($arabicString, $scheme);
 		} else {
-			return implode(array_filter(str_split($arabicString), function($check) { return $check == " "; }));
+			return implode(array_filter(preg_split('/(?<!^)(?!$)/u', $arabicString), function($check) { return $check == " "; }));
 		}
 	}
     public static function GetSchemeSpecialValue($index, $scheme)
@@ -1221,7 +1221,7 @@ class Arabic
 		    function($str, $scheme) { return [Arabic::TransliterateWithRules(Arabic::ArabicLetterSpelling($str, true), $scheme, null)]; },
 		    function($str, $scheme) { return [Arabic::GetSchemeValueFromSymbol(ArabicData::Data()->arabicletters->children()[ArabicData::FindLetterBySymbol(mb_substr($str, 0, 1))], $scheme)]; },
 		    function($str, $scheme) { return [Arabic::GetSchemeLongVowelFromString($str, $scheme)]; },
-		    function($str, $scheme) { return [CachedData::ArabicFathaDammaKasra()[array_search($str, CachedData::ArabicTanweens)], ArabicData::$ArabicLetterNoon]; },
+		    function($str, $scheme) { return [CachedData::ArabicFathaDammaKasra()[array_search($str, CachedData::ArabicTanweens())], ArabicData::$ArabicLetterNoon]; },
 		    function($str, $scheme) { return ["", ""]; },
 		    function($str, $scheme) { return [""]; },
 		    function($str, $scheme) { return [Arabic::GetSchemeGutteralFromString(mb_substr($str, 0, mb_strlen($str) - 1), $scheme, true) . mb_substr($str, mb_strlen($str) - 1, 1)]; },
@@ -1249,7 +1249,7 @@ class Arabic
     public static function ArabicLetterSpelling($input, $quranic)
     {
         $output = "";
-        foreach ($input as $ch) {
+        foreach (preg_split('/(?<!^)(?!$)/u', $input) as $ch) {
             $index = ArabicData::FindLetterBySymbol($ch);
             if ($index != -1 && Arabic::IsLetter($index)) {
                 if ($output != "" && !$quranic) { $output .= " "; }
@@ -1336,7 +1336,7 @@ class Arabic
                         $str = "";
                         for ($index = 0; $index < count($args); $index++) {
                             if ($args[$index] != null) {
-                                $str .= ArabicData::ReplaceMetadata($args[$index], new RuleMetadata(0, mb_strlen($args[$index]), str_replace(" ", "|", $metaArgs[$index])), $scheme, $optionalStops);
+                                $str .= Arabic::ReplaceMetadata($args[$index], new RuleMetadata(0, mb_strlen($args[$index]), str_replace(" ", "|", $metaArgs[$index])), $scheme, $optionalStops);
                             }
                         }
                     }
