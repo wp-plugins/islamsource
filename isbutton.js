@@ -31,12 +31,12 @@ function getBaseURL () {
 				      					body: v
 				      				});
 				      			};
-					    	}, getOnPostRender = function(u, ch) { return function () { var el = document.createElement(ch ? "span" : "img"); if (ch) { el.style.fontSize = "100px"; el.style.display = "inline-block"; el.innerText = u; } else { el.style.maxWidth = "280px"; el.style.width = "auto"; el.style.height = "auto"; var f = function() { if (!this.complete) { window.setTimeout(f.bind(this), 1000); } else { this.parentNode.style.maxWidth = '300px'; this.style.maxWidth = '280px'; this.style.width = 'auto'; } }; el.onload = f; el.src = u; } this.getEl().style.maxWidth = '300px'; this.getEl().style.height = "auto"; this.getEl().firstChild.appendChild(el); if(!ch) el.onload(); }; };
+					    	}, getOnPostRender = function(u, ch) { return function () { var el = document.createElement(ch ? "span" : "img"); var size = parseInt(ed.queryCommandValue('FontSize')) || parseInt(tinyMCE.DOM.getStyle(ed.selection.getNode(), 'fontSize', true), 10); var fontName = ed.queryCommandValue('FontName') || tinyMCE.DOM.getStyle(ed.selection.getNode(), 'fontFamily', true); if (ch) { el.style.fontSize = size + "px"; el.style.display = "inline-block"; el.innerText = u; } else { el.style.maxWidth = "280px"; el.style.width = "auto"; el.style.height = "auto"; var f = function() { if (!this.complete) { window.setTimeout(f.bind(this), 1000); } else { this.parentNode.style.maxWidth = '300px'; this.style.maxWidth = '280px'; this.style.width = 'auto'; } }; el.onload = f; el.src = u + "&Size=" + size; } this.getEl().style.maxWidth = '300px'; this.getEl().style.height = "auto"; this.getEl().firstChild.appendChild(el); if(!ch) el.onload(); }; };
 				    	for (var pancount = 0; pancount < data[count].menu[subcount].values.length; pancount++) {
 				    		if (data[count].menu[subcount].values[pancount] !== null) {
 				    			if (data[count].menu[subcount].values[pancount].font !== "") {
 						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc(data[count].menu[subcount].values[pancount].value + ";" + 'Font=' + data[count].menu[subcount].values[pancount].font + ';Char=' + data[count].menu[subcount].values[pancount].char, false),
-						    			onPostRender: getOnPostRender(url + '/IslamSourceWP.php?Size=100&Font=' + data[count].menu[subcount].values[pancount].font + '&Char=' + data[count].menu[subcount].values[pancount].char, false)
+						    			onPostRender: getOnPostRender(url + '/IslamSourceWP.php?Font=' + data[count].menu[subcount].values[pancount].font + '&Char=' + data[count].menu[subcount].values[pancount].char, false)
 						    			});
 						    	} else {
 						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc('&#x' + data[count].menu[subcount].values[pancount].char + ';', true), style: "text-align: center;",
