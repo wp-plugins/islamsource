@@ -15,9 +15,9 @@ function getBaseURL () {
 		    for (var count = 0; count < data.length; count++) {
 		    	for (var subcount = 0; subcount < data[count].menu.length; subcount++) {
 		    		if (data[count].menu[subcount] !== undefined && data[count].menu[subcount] !== null) {
-			    		var val = [], getClickFunc = function(paste, ch) {
+			    		var val = [], getClickFunc = function(b, paste, ch) {
 		    					return function(e) {
-				      				ed.selection.setContent((ch ? '' : '{') + paste + (ch ? '' : '}'));
+				      				ed.selection.setContent((ch ? '' : '{') + paste + ";Size=" + (parseInt(ed.queryCommandValue('FontSize')) || parseInt(tinyMCE.DOM.getStyle(ed.selection.getNode(), 'fontSize', true), 10)) + (ch ? '' : '}'));
 		      					};
 			    			}, getMenuClickFunc = function(v) {
 					    		return function () {
@@ -35,11 +35,11 @@ function getBaseURL () {
 				    	for (var pancount = 0; pancount < data[count].menu[subcount].values.length; pancount++) {
 				    		if (data[count].menu[subcount].values[pancount] !== null) {
 				    			if (data[count].menu[subcount].values[pancount].font !== "") {
-						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc(data[count].menu[subcount].values[pancount].value + ";" + 'Font=' + data[count].menu[subcount].values[pancount].font + ';Char=' + data[count].menu[subcount].values[pancount].char, false),
+						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc(this, data[count].menu[subcount].values[pancount].value + ";" + 'Font=' + data[count].menu[subcount].values[pancount].font + ';Char=' + data[count].menu[subcount].values[pancount].char, false),
 						    			onPostRender: getOnPostRender(url + '/IslamSourceWP.php?Font=' + data[count].menu[subcount].values[pancount].font + '&Char=' + data[count].menu[subcount].values[pancount].char, false)
 						    			});
 						    	} else {
-						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc('&#x' + data[count].menu[subcount].values[pancount].char + ';', true), style: "text-align: center;",
+						    		val.push({type: 'button', name: 'category' + pancount, onclick: getClickFunc(this, '&#x' + data[count].menu[subcount].values[pancount].char + ';', true), style: "text-align: center;",
 						    			onPostRender: getOnPostRender(String.fromCharCode(parseInt(data[count].menu[subcount].values[pancount].char, 16)), true)
 						    			});
 						    	}
