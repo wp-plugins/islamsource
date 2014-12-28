@@ -6,6 +6,10 @@ Version: 1.1.0
 Author: IslamSource
 Author URI: http://www.islamsource.info
 */
+if (array_key_exists("ShowError", $_GET)) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', 1);
+}
 class Utility
 {
 	public static $_resxml = null;
@@ -1656,7 +1660,8 @@ class Arabic
                     if (count($args) == 1) {
                         $str = $args[0];
                     } else {
-                        $metaArgs = explode(",", preg_match("/" . $match . "\\((.*)\\)" . "/u", $metadataRule->type)[1]);
+                    	preg_match("/" . $match . "\\((.*)\\)" . "/u", $metadataRule->type, $matches);
+                        $metaArgs = explode(",", $matches[1]);
                         $str = "";
                         for ($index = 0; $index < count($args); $index++) {
                             if ($args[$index] != null) {
@@ -1725,7 +1730,7 @@ class Arabic
                 preg_match_all("/" . CachedData::RulesOfRecitationRegEx()[$count]->attributes()["match"] . "/u", $arabicString, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
                 for ($matchIndex = 0; $matchIndex < count($matches); $matchIndex++) {
                     for ($subCount = 0; $subCount < count(explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])); $subCount++) {
-                        if (explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])[$subCount] != null && (strlen($matches[$matchIndex][$subCount + 1][0]) != 0 || array_search(explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])[$subCount], Arabic::$AllowZeroLength) !== false)) {
+                        if (explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])[$subCount] != null && (isset($matches[$matchIndex][$subCount + 1]) && strlen($matches[$matchIndex][$subCount + 1][0]) != 0 || array_search(explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])[$subCount], Arabic::$AllowZeroLength) !== false)) {
                             array_push($metadataList, new RuleMetadata(mb_strlen(substr($arabicString, 0, $matches[$matchIndex][$subCount + 1][1])), mb_strlen($matches[$matchIndex][$subCount + 1][0]), explode(";", CachedData::RulesOfRecitationRegEx()[$count]->attributes()["evaluator"])[$subCount]));
                         }
                     }
@@ -2045,7 +2050,7 @@ class DocBuilder
 	                if (strlen($matches[$count][1]) != 0) {
 	                	array_push($renderer->Items, new RenderItem(RenderTypes::eText, [new RenderText(RenderDisplayClass::eLTR, $matches[$count][1])]));
 	            	}
-	                if (strlen($matches[$count][3]) != 0) {
+	                if (isset($matches[$count][3]) && strlen($matches[$count][3]) != 0) {
 	                    $renderer->Items = array_merge($renderer->Items, DocBuilder::TextFromReferences($matches[$count][3], $schemetype, $scheme, $translationindex)->Items);
 	                }
 	            }
