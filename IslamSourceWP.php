@@ -1506,11 +1506,15 @@ class Arabic
     public static function GetSortedLetters($scheme)
     {
     	if (Arabic::$_letters == null) {
-	        Arabic::$_letters = array();
+	        $letters = array();
 	        for ($count = 0; $count < count(ArabicData::ArabicLetters()); $count++) {
-	        	Arabic::$_letters[ArabicData::ArabicLetters()[$count]->Symbol] = ArabicData::ArabicLetters()[$count];
+	        	$letters[] = ArabicData::ArabicLetters()[$count];
 	        }
-	        usort(Arabic::$_letters, function($x, $y) use($scheme) { $compare = strlen(Arabic::GetSchemeValueFromSymbol($x, $scheme)) - strlen(Arabic::GetSchemeValueFromSymbol($y, $scheme)); if ($compare == 0) { $compare = strcmp(Arabic::GetSchemeValueFromSymbol($x, $scheme), Arabic::GetSchemeValueFromSymbol($y, $scheme)); } return $compare; });
+	        usort($letters, function($x, $y) use($scheme) { $compare = strlen(Arabic::GetSchemeValueFromSymbol($x, $scheme)) - strlen(Arabic::GetSchemeValueFromSymbol($y, $scheme)); if ($compare == 0) { $compare = strcmp(Arabic::GetSchemeValueFromSymbol($x, $scheme), Arabic::GetSchemeValueFromSymbol($y, $scheme)); } return $compare; });
+	        Arabic::$_letters = array();
+	        for ($count = 0; $count < count($letters); $count++) {
+	        	Arabic::$_letters[$letters[$count]->Symbol] = $count;
+	        }
 	    }
 	    return Arabic::$_letters;
     }
@@ -1534,9 +1538,8 @@ class Arabic
                     if (Arabic::GetSchemeSpecialFromMatch(mb_substr($arabicString, $count, 1), false) != -1) {
                         $romanString .= Arabic::GetSchemeSpecialValue(Arabic::GetSchemeSpecialFromMatch(mb_substr($arabicString, $count, 1), false), $scheme == "" ? "ExtendedBuckwalter" : $scheme);
                     } else {
-                        $romanString .= Arabic::GetSchemeValueFromSymbol(Arabic::GetSortedLetters($scheme)[mb_substr($arabicString, $count, 1)], $scheme == "" ? "ExtendedBuckwalter" : $scheme);
+                        $romanString .= Arabic::GetSchemeValueFromSymbol(ArabicData::ArabicLetters()[ArabicData::FindLetterBySymbol(mb_substr($arabicString, $count, 1))], $scheme == "" ? "ExtendedBuckwalter" : $scheme);
                     }
-                    break;
                 } else {
                     $romanString .= mb_substr($arabicString, $count, 1);
                 }
