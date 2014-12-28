@@ -1502,14 +1502,21 @@ class Arabic
         }
         return "";
     }
+    static $_letters = null;
+    public static function GetSortedLetters($scheme)
+    {
+    	if (Arabic::$_letters == null) {
+	        Arabic::$_letters = array();
+	        for ($count = 0; $count < count(ArabicData::ArabicLetters()); $count++) {
+	        	Arabic::$_letters[ArabicData::ArabicLetters()[$count]->Symbol] = ArabicData::ArabicLetters()[$count];
+	        }
+	        usort(Arabic::$_letters, function($x, $y) use($scheme) { $compare = strlen(Arabic::GetSchemeValueFromSymbol($x, $scheme)) - strlen(Arabic::GetSchemeValueFromSymbol($y, $scheme)); if ($compare == 0) { $compare = strcmp(Arabic::GetSchemeValueFromSymbol($x, $scheme), Arabic::GetSchemeValueFromSymbol($y, $scheme)); } return $compare; });
+	    }
+	    return Arabic::$_letters;
+    }
 	public static function TransliterateToRoman($arabicString, $scheme)
 	{
         $romanString = "";
-        $letters = array();
-        for ($count = 0; $count < count(ArabicData::ArabicLetters()); $count++) {
-        	$letters[] = ArabicData::ArabicLetters()[$count];
-        }
-        usort($letters, function($x, $y) use($scheme) { $compare = strlen(Arabic::GetSchemeValueFromSymbol($x, $scheme)) - strlen(Arabic::GetSchemeValueFromSymbol($y, $scheme)); if ($compare == 0) { $compare = strcmp(Arabic::GetSchemeValueFromSymbol($x, $scheme), Arabic::GetSchemeValueFromSymbol($y, $scheme)); } return $compare; });
         for ($count = 0; $count < mb_strlen($arabicString); $count++) {
             if (mb_substr($arabicString, $count, 1) == "\\") {
                 $count += 1;
@@ -1523,17 +1530,14 @@ class Arabic
                     $romanString .= mb_substr($arabicString, $count, 1);
                 }
             } else {
-                for ($index = 0; $index < count($letters); $index++) {
-                    if (mb_substr($arabicString, $count, 1) == $letters[$index]->Symbol) {
-                        if (Arabic::GetSchemeSpecialFromMatch($letters[$index]->Symbol, false) != -1) {
-                            $romanString .= Arabic::GetSchemeSpecialValue(Arabic::GetSchemeSpecialFromMatch($letters[$index]->Symbol, false), $scheme == "" ? "ExtendedBuckwalter" : $scheme);
-                        } else {
-                            $romanString .= Arabic::GetSchemeValueFromSymbol($letters[$index], $scheme == "" ? "ExtendedBuckwalter" : $scheme);
-                        }
-                        break;
+                if (array_key_exists(mb_substr($arabicString, $count, 1), Arabic::GetSortedLetters($scheme))) {
+                    if (Arabic::GetSchemeSpecialFromMatch(mb_substr($arabicString, $count, 1), false) != -1) {
+                        $romanString .= Arabic::GetSchemeSpecialValue(Arabic::GetSchemeSpecialFromMatch(mb_substr($arabicString, $count, 1), false), $scheme == "" ? "ExtendedBuckwalter" : $scheme);
+                    } else {
+                        $romanString .= Arabic::GetSchemeValueFromSymbol(Arabic::GetSortedLetters($scheme)[mb_substr($arabicString, $count, 1)], $scheme == "" ? "ExtendedBuckwalter" : $scheme);
                     }
-                }
-                if ($index == count($letters)) {
+                    break;
+                } else {
                     $romanString .= mb_substr($arabicString, $count, 1);
                 }
             }
